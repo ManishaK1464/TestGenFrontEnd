@@ -1,7 +1,8 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import "./App.css";
-const API_URL =import.meta.env.VITE_API_URL;
 
+const API_URL = import.meta.env.VITE_API_URL;
 
 const PRIORITY_OPTIONS = ["High", "Medium", "Low"];
 const STATUS_OPTIONS = ["Open", "In Progress", "Closed"];
@@ -12,17 +13,22 @@ export default function App() {
   const [testcases, setTestcases] = useState([]);
   const [error, setError] = useState(null);
 
+  const { t, i18n } = useTranslation();
+
+  const changeLanguage = (lang) => {
+    i18n.changeLanguage(lang);
+  };
+
   function updateTestcase(index, field, value) {
-    setTestcases(prev => {
+    setTestcases((prev) => {
       const newCases = [...prev];
-      newCases[index][field] =
-        field === "steps" ? value.split("\n") : value;
+      newCases[index][field] = field === "steps" ? value.split("\n") : value;
       return newCases;
     });
   }
 
   function addTestcase() {
-    setTestcases(prev => [
+    setTestcases((prev) => [
       ...prev,
       {
         id: `TC${(prev.length + 1).toString().padStart(3, "0")}`,
@@ -31,41 +37,39 @@ export default function App() {
         steps: [],
         expected_result: "",
         priority: "Medium",
-        status: "Open"
-      }
+        status: "Open",
+      },
     ]);
   }
 
   function removeTestcase(index) {
-    setTestcases(prev => prev.filter((_, i) => i !== index));
+    setTestcases((prev) => prev.filter((_, i) => i !== index));
   }
 
   function downloadCSV() {
     if (!testcases.length) return;
     const headers = [
-      "Test Case ID",
-      "Title",
-      "Description",
-      "Steps",
-      "Expected Result",
-      "Priority",
-      "Status"
+      t("id"),
+      t("title"),
+      t("description"),
+      t("steps"),
+      t("expectedResult"),
+      t("priority"),
+      t("status"),
     ];
-    const rows = testcases.map(tc => [
+    const rows = testcases.map((tc) => [
       tc.id,
       tc.title,
       tc.description,
       tc.steps.join("\n"),
       tc.expected_result,
       tc.priority,
-      tc.status
+      tc.status,
     ]);
     const csvContent =
       [headers, ...rows]
-        .map(row =>
-          row
-            .map(item => `"${item?.toString().replace(/"/g, '""')}"`)
-            .join(",")
+        .map((row) =>
+          row.map((item) => `"${item?.toString().replace(/"/g, '""')}"`).join(",")
         )
         .join("\n") + "\n";
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -80,42 +84,40 @@ export default function App() {
   async function copyToClipboard() {
     if (!testcases.length) return;
     const headers = [
-      "Test Case ID",
-      "Title",
-      "Description",
-      "Steps",
-      "Expected Result",
-      "Priority",
-      "Status"
+      t("id"),
+      t("title"),
+      t("description"),
+      t("steps"),
+      t("expectedResult"),
+      t("priority"),
+      t("status"),
     ];
-    const rows = testcases.map(tc => [
+    const rows = testcases.map((tc) => [
       tc.id,
       tc.title,
       tc.description,
       tc.steps.join("\n"),
       tc.expected_result,
       tc.priority,
-      tc.status
+      tc.status,
     ]);
     const csvText = [headers, ...rows]
-      .map(row =>
-        row
-          .map(item => `"${item?.toString().replace(/"/g, '""')}"`)
-          .join(",")
+      .map((row) =>
+        row.map((item) => `"${item?.toString().replace(/"/g, '""')}"`).join(",")
       )
       .join("\n");
     try {
       await navigator.clipboard.writeText(csvText);
-      alert("Copied test cases to clipboard!");
+      alert(t("copiedMessage"));
     } catch {
-      alert("Failed to copy. Try manually.");
+      alert(t("failedCopy"));
     }
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
     if (!requirement.trim()) {
-      setError("Please enter a requirement description.");
+      setError(t("requirementError"));
       return;
     }
     setError(null);
@@ -124,9 +126,9 @@ export default function App() {
       const res = await fetch(`${API_URL}/generate-testcases`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ requirement_description: requirement })
+        body: JSON.stringify({ requirement_description: requirement }),
       });
-      if (!res.ok) throw new Error("Failed to fetch testcases");
+      if (!res.ok) throw new Error(t("fetchError"));
       const data = await res.json();
       const normalized = data.testcases.map((tc, i) => ({
         id: tc.id || `TC${(i + 1).toString().padStart(3, "0")}`,
@@ -135,7 +137,7 @@ export default function App() {
         steps: Array.isArray(tc.steps) ? tc.steps : tc.steps.split("\n"),
         expected_result: tc.expected_result || "",
         priority: tc.priority || "Medium",
-        status: tc.status || "Open"
+        status: tc.status || "Open",
       }));
       setTestcases(normalized);
     } catch (err) {
@@ -152,13 +154,18 @@ export default function App() {
         <div className="header-left">
           <div className="app-logo">A</div>
           <div className="header-content">
-            <h1>IEM-TestGen</h1>
-            <div className="header-subtitle">
-              AI-powered test case generation and management
-            </div>
+            <h1>{t("appName")}</h1>
+            <div className="header-subtitle">{t("subtitle")}</div>
           </div>
         </div>
-        <div className="ai-badge">AI-Powered</div>
+
+        <div className="header-right">
+          <div className="language-switcher">
+            <button onClick={() => changeLanguage("en")}>🇺🇸 en</button>
+            <button onClick={() => changeLanguage("de")}>🇩🇪 de</button>
+          </div>
+          <div className="ai-badge">{t("aiBadge")}</div>
+        </div>
       </div>
 
       {/* Main */}
@@ -168,29 +175,23 @@ export default function App() {
           <div className="requirements-section">
             <h2>
               <span className="search-icon">🔍</span>
-              Requirements Input
+              {t("requirementsInput")}
             </h2>
-            <p>Enter project needs to generate structured test cases</p>
+            <p>{t("enterProjectNeeds")}</p>
 
             <form onSubmit={handleSubmit}>
               <div className="form-group">
-                <label className="form-label">
-                  Enter requirement or feature description:
-                </label>
+                <label className="form-label">{t("requirementLabel")}</label>
                 <textarea
                   value={requirement}
-                  onChange={e => setRequirement(e.target.value)}
+                  onChange={(e) => setRequirement(e.target.value)}
                   className="form-textarea"
-                  placeholder="E.g. User logs in with email and password"
+                  placeholder={t("requirementPlaceholder")}
                 />
               </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="generate-btn"
-              >
+              <button type="submit" disabled={loading} className="generate-btn">
                 <span className="generate-icon">⚡</span>
-                Generate Analysis
+                {t("generateAnalysis")}
               </button>
             </form>
             {error && <div className="error-message">{error}</div>}
@@ -200,17 +201,17 @@ export default function App() {
         {/* Right panel */}
         <div className="right-panel">
           <div className="results-header">
-            <h2>Research Analysis Results</h2>
+            <h2>{t("researchResults")}</h2>
             {testcases.length > 0 && (
               <div className="action-buttons">
                 <button onClick={addTestcase} className="btn-secondary">
-                  + ADD TEST
+                  {t("addTest")}
                 </button>
                 <button onClick={downloadCSV} className="btn-secondary">
-                  ⬇️ Export Papers
+                  {t("exportPapers")}
                 </button>
                 <button onClick={copyToClipboard} className="btn-primary">
-                  📤 SHARE
+                  {t("share")}
                 </button>
               </div>
             )}
@@ -219,41 +220,39 @@ export default function App() {
           {testcases.length === 0 ? (
             <div className="empty-state">
               <div className="empty-icon">🎨</div>
-              <p className="empty-title">Welcome TO IEMTestGen</p>
+              <p className="empty-title">{t("welcome")}</p>
               <div className="empty-features">
                 <div className="feature-item">
                   <span className="feature-icon">🤖</span>
-                  <span className="feature-text">
-                    Fast & Accurate
-                  </span>
+                  <span className="feature-text">{t("fastAccurate")}</span>
                 </div>
                 <div className="feature-item">
                   <span className="feature-icon">✏️</span>
-                  <span className="feature-text"> Export-Ready</span>
+                  <span className="feature-text">{t("exportReady")}</span>
                 </div>
                 <div className="feature-item">
                   <span className="feature-icon">🎯</span>
-                  <span className="feature-text">Customizable — tweak steps, inputs to match your workflow</span>
+                  <span className="feature-text">{t("customizable")}</span>
                 </div>
               </div>
             </div>
           ) : (
             <div className="table-card">
               <div className="table-card-header">
-                <span>TEST CASES</span>
+                <span>{t("testCases")}</span>
               </div>
               <div className="table-card-body">
                 <table className="test-cases-table">
                   <thead>
                     <tr>
-                      <th>ID</th>
-                      <th>Title</th>
-                      <th>Description</th>
-                      <th>Steps</th>
-                      <th>Expected Result</th>
-                      <th>Priority</th>
-                      <th>Status</th>
-                      <th>Remove</th>
+                      <th>{t("id")}</th>
+                      <th>{t("title")}</th>
+                      <th>{t("description")}</th>
+                      <th>{t("steps")}</th>
+                      <th>{t("expectedResult")}</th>
+                      <th>{t("priority")}</th>
+                      <th>{t("status")}</th>
+                      <th>{t("remove")}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -263,7 +262,7 @@ export default function App() {
                           <input
                             type="text"
                             value={tc.id}
-                            onChange={e =>
+                            onChange={(e) =>
                               updateTestcase(i, "id", e.target.value)
                             }
                             className="table-input"
@@ -274,7 +273,7 @@ export default function App() {
                           <input
                             type="text"
                             value={tc.title}
-                            onChange={e =>
+                            onChange={(e) =>
                               updateTestcase(i, "title", e.target.value)
                             }
                             className="table-input"
@@ -283,7 +282,7 @@ export default function App() {
                         <td>
                           <textarea
                             value={tc.description}
-                            onChange={e =>
+                            onChange={(e) =>
                               updateTestcase(i, "description", e.target.value)
                             }
                             className="table-textarea"
@@ -292,17 +291,17 @@ export default function App() {
                         <td>
                           <textarea
                             value={tc.steps.join("\n")}
-                            onChange={e =>
+                            onChange={(e) =>
                               updateTestcase(i, "steps", e.target.value)
                             }
                             className="table-textarea"
-                            placeholder="One step per line"
+                            placeholder={t("stepsPlaceholder")}
                           />
                         </td>
                         <td>
                           <textarea
                             value={tc.expected_result}
-                            onChange={e =>
+                            onChange={(e) =>
                               updateTestcase(
                                 i,
                                 "expected_result",
@@ -315,12 +314,12 @@ export default function App() {
                         <td>
                           <select
                             value={tc.priority}
-                            onChange={e =>
+                            onChange={(e) =>
                               updateTestcase(i, "priority", e.target.value)
                             }
                             className="table-select"
                           >
-                            {PRIORITY_OPTIONS.map(p => (
+                            {PRIORITY_OPTIONS.map((p) => (
                               <option key={p} value={p}>
                                 {p}
                               </option>
@@ -330,12 +329,12 @@ export default function App() {
                         <td>
                           <select
                             value={tc.status}
-                            onChange={e =>
+                            onChange={(e) =>
                               updateTestcase(i, "status", e.target.value)
                             }
                             className="table-select"
                           >
-                            {STATUS_OPTIONS.map(s => (
+                            {STATUS_OPTIONS.map((s) => (
                               <option key={s} value={s}>
                                 {s}
                               </option>
@@ -347,7 +346,7 @@ export default function App() {
                             onClick={() => removeTestcase(i)}
                             className="remove-btn"
                           >
-                            Remove
+                            {t("remove")}
                           </button>
                         </td>
                       </tr>
@@ -361,9 +360,7 @@ export default function App() {
       </div>
 
       {/* Footer */}
-      <div className="app-footer">
-        © 2025 IEM Fraunhofer • AI-Powered Test Case Generator
-      </div>
+      <div className="app-footer">{t("footer")}</div>
     </>
   );
 }
