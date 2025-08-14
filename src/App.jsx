@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import "./App.css";
+const API_URL = "https://testgen-backend-mh5s.onrender.com";
+
 
 const PRIORITY_OPTIONS = ["High", "Medium", "Low"];
 const STATUS_OPTIONS = ["Open", "In Progress", "Closed"];
@@ -119,7 +121,7 @@ export default function App() {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch("http://127.0.0.1:8000/generate-testcases", {
+      const res = await fetch(`${API_URL}/generate-testcases`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ requirement_description: requirement })
