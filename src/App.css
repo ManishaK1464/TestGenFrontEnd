@@ -41,15 +41,6 @@
   margin-top: 0.2rem;
 }
 
-.ai-badge {
-  background: rgba(255, 255, 255, 0.2);
-  padding: 0.4rem 1rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
 /* Main container */
 .main-container {
   display: flex;
@@ -264,7 +255,6 @@
   border-spacing: 0 8px;
 }
 
-/* Header row */
 .test-cases-table thead th {
   background: transparent;
   color: #33475b;
@@ -275,12 +265,11 @@
   border-bottom: 2px solid #e2e8f0;
 }
 
-/* Body rows with subtle card effect */
 .test-cases-table tbody tr {
   background: #ffffff;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0 0.15s ease;
 }
 
 .test-cases-table tbody tr:hover {
@@ -288,14 +277,12 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Cells padding and no internal borders */
 .test-cases-table td {
   padding: 0.75rem 1rem;
   border: none;
   vertical-align: middle;
 }
 
-/* Inputs/selects inside cells */
 .table-input,
 .table-select,
 .table-textarea {
@@ -316,7 +303,6 @@
   box-shadow: 0 0 0 3px rgba(0, 200, 150, 0.2);
 }
 
-/* Remove button styling */
 .remove-btn {
   background: #ff5e5e;
   color: #fff;
@@ -393,21 +379,9 @@
   color: #1a202c;
 }
 
-/* Footer */
-.app-footer {
-  text-align: center;
-  padding: 1rem;
-  font-size: 0.85rem;
-  color: #666;
-  background: #f1f3f4;
-  border-top: 1px solid #e9ecef;
-}
-
 /* Responsive */
 @media (max-width: 1024px) {
-  .main-container {
-    flex-direction: column;
-  }
+  .main-container { flex-direction: column; }
   .left-panel {
     width: 100%;
     border-right: none;
@@ -429,9 +403,6 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
-  }
-  .ai-badge {
-    align-self: flex-start;
   }
   .action-buttons {
     flex-direction: column;
@@ -474,4 +445,3 @@
 .language-switcher button:hover {
   background: rgba(255, 255, 255, 0.3);
 }
-

@@ -164,7 +164,6 @@ export default function App() {
             <button onClick={() => changeLanguage("en")}>🇺🇸 en</button>
             <button onClick={() => changeLanguage("de")}>🇩🇪 de</button>
           </div>
-          <div className="ai-badge">{t("aiBadge")}</div>
         </div>
       </div>
 
@@ -208,10 +207,10 @@ export default function App() {
                   {t("addTest")}
                 </button>
                 <button onClick={downloadCSV} className="btn-secondary">
-                  {t("exportPapers")}
+                  {t("Export")}
                 </button>
                 <button onClick={copyToClipboard} className="btn-primary">
-                  {t("share")}
+                  {t("Share")}
                 </button>
               </div>
             )}
@@ -358,9 +357,6 @@ export default function App() {
           )}
         </div>
       </div>
-
-      {/* Footer */}
-      <div className="app-footer">{t("footer")}</div>
     </>
   );
 }
